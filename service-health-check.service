@@ -1,0 +1,15 @@
+[Unit]
+Description=Service Health Check
+After=network.target
+
+[Service]
+Type=simple
+
+Restart=on-failure
+RestartSec=10
+
+WorkingDirectory=/opt/service-check
+ExecStart=/opt/service-check/service-check.exe
+
+[Install]
+WantedBy=multi-user.target

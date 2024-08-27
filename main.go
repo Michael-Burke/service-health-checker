@@ -22,6 +22,10 @@ type ServiceStatus struct {
 type Config struct {
 	Services []string `json:"services"`
 	Interval int      `json:"interval"`
+	Server   struct {
+		URL  string `json:"url"`
+		Port int    `json:"port"`
+	} `json:"server"`
 }
 
 var (
@@ -33,6 +37,8 @@ var (
 		},
 		[]string{"service_name"},
 	)
+	defaultURL  string = "127.0.0.1"
+	defaultPort int    = 2112
 )
 
 func init() {
@@ -60,6 +66,14 @@ func LoadConfig(configPath string) Config {
 		log.Fatalf("Failed to unmarshal config file: %v", err)
 	}
 
+	// Set default values if not provided
+	if config.Server.URL == "" {
+		config.Server.URL = defaultURL
+	}
+	if config.Server.Port == 0 {
+		config.Server.Port = defaultPort
+	}
+
 	return config
 }
 
@@ -80,8 +94,9 @@ func main() {
 
 	go func() {
 		http.Handle("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
-		log.Println("Starting server on 127.0.0.1:2112")
-		log.Fatal(http.ListenAndServe("127.0.0.1:2112", nil))
+		serverAddress := config.Server.URL + ":" + string(config.Server.Port)
+		log.Printf("Starting server on %s", serverAddress)
+		log.Fatal(http.ListenAndServe(serverAddress, nil))
 	}()
 
 	for {

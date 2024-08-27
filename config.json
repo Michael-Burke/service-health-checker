@@ -1,4 +1,8 @@
 {
     "services": ["salt-minion", "clamav-daemon", "grafana-agent"],
-    "interval": 10
+    "interval": 10,
+    "server": {
+      "url": "127.0.0.1",
+      "port": 2112
+  }
 }

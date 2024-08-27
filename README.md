@@ -20,6 +20,19 @@ There isn't much customization right now but coming soon:tm:
 
 Download the service-checker.exe and place into `/opt/service-checker` directory, then copy the `service-health-check.service` file into `/etc/systemd/system/`. Then create a `config.json` at the `/opt/service-checker` directory and add/remove the desired services.
 
+The `config.json` should look like this:
+
+```json
+{
+    "services": ["salt-minion", "clamav-daemon", "grafana-agent"],
+    "interval": 10,
+    "server": {
+      "url": "127.0.0.1",
+      "port": 2112
+  }
+}
+```
+
 > Note: Interval doesn't do anything right now but is required so leave it at 10
 
 Next run the following

@@ -1,4 +1,4 @@
-name: "Build `service-check` Binary"
+name: "Build and Release Binary"
 
 on:
   release:

@@ -6,7 +6,7 @@ This application runs as a systemd service and gets the health of services eithe
 
 ## Specifics
 
- The app calls to `systemctl is-active <service_name>` and then serves up the validate and interpreted response to a prometheus http endpoint `http://localhost:2112/metrics`. The prom-http endpoint contains time-series based on the services declared in the `config.json`. The time-series looks something like this:
+ The app calls to `systemctl is-active <service_name>` and then serves up the validated and interpreted response to a prometheus http endpoint `http://localhost:2112/metrics`. The prom-http endpoint contains timeseries based on the services declared in the `config.json`. The timeseries looks something like this:
 
 ```text
 service_health_status{service_name="<service_name>"} (1|0)

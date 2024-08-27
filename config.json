@@ -1,0 +1,4 @@
+{
+    "services": ["salt-minion", "clamav-daemon", "grafana-agent"],
+    "interval": 10
+}

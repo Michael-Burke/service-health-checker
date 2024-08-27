@@ -3,10 +3,8 @@ name: "Build and Release Binary"
 on:
   release:
     types:
-      - created
       - published
       - edited
-      - prereleased
 
 permissions:
   contents: write

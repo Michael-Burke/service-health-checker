@@ -10,7 +10,7 @@ The example config.json is:
 
 ```json
 {
-    "services": ["salt-minion", "teleport", "wazuh-agent", "clamav-daemon", "grafana-agent"],
+    "services": ["salt-minion", "clamav-daemon", "grafana-agent"],
     "interval": 10
 }
 ```

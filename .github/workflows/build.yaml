@@ -1,0 +1,31 @@
+name: "Build `service-check` Binary"
+
+on:
+  release:
+    types:
+      - created
+      - published
+      - edited
+      - prereleased
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    name: release linux/amd64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build service-check
+        run: |
+          go mod init service-check
+          go mod tidy
+          GOOS=linux GOARCH=amd64 go build -o ./service-check/service-check.exe main.go
+      - name: Upload service-check
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            ./service-check/service-check.exe

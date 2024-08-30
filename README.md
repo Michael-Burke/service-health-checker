@@ -16,6 +16,10 @@ The default working directory is `/opt/service-checker` but this can be changed 
 
 There isn't much customization right now but coming soon:tm:
 
+Here is the basic architecture:
+
+![alt text](images/arch.png)
+
 ## Use
 
 Download the service-checker.exe and place into `/opt/service-checker` directory, then copy the `service-health-check.service` file into `/etc/systemd/system/`. Then create a `config.json` at the `/opt/service-checker` directory and add/remove the desired services.

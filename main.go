@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"reflect"
+	"strings"
 	"sync"
 	"time"
 
@@ -26,6 +28,8 @@ type Config struct {
 		URL  string `json:"url"`
 		Port int    `json:"port"`
 	} `json:"server"`
+	Controller string `json:"controller"`
+	Metrics    string `json:"metrics"`
 }
 
 var (
@@ -37,12 +41,56 @@ var (
 		},
 		[]string{"service_name"},
 	)
-	defaultURL  string = "127.0.0.1"
-	defaultPort int    = 2112
+	defaultURL        string = "127.0.0.1"
+	defaultPort       int    = 2112
+	defaultController string = "systemctl"
+	defaultMetrics    string = "prometheus"
+	defaultInterval   int    = 10
 )
 
 func init() {
 	registry.MustRegister(serviceHealth)
+}
+
+func (config *Config) setDefaults() {
+	defaults := map[string]interface{}{
+		"Server.URL":  defaultURL,
+		"Server.Port": defaultPort,
+		"Controller":  defaultController,
+		"Metrics":     defaultMetrics,
+		"Interval":    defaultInterval,
+	}
+	// Use reflection to set default values
+	v := reflect.ValueOf(config).Elem()
+	for key, value := range defaults {
+		field := v
+		for _, name := range strings.Split(key, ".") {
+			field = field.FieldByName(name)
+		}
+		if isZero(field) {
+			field.Set(reflect.ValueOf(value))
+		}
+	}
+
+	// Validate controller separately
+	if !validateController(config.Controller) {
+		log.Printf("Invalid controller specified: %s. Using default: %s", config.Controller, defaultController)
+		config.Controller = defaultController
+	}
+}
+
+func isZero(v reflect.Value) bool {
+	return v.Interface() == reflect.Zero(v.Type()).Interface()
+}
+
+func validateController(controller string) bool {
+	validControllers := []string{"systemctl", "anotherController"}
+	for _, valid := range validControllers {
+		if controller == valid {
+			return true
+		}
+	}
+	return false
 }
 
 func LoadConfig(configPath string) Config {
@@ -67,19 +115,21 @@ func LoadConfig(configPath string) Config {
 	}
 
 	// Set default values if not provided
-	if config.Server.URL == "" {
-		config.Server.URL = defaultURL
-	}
-	if config.Server.Port == 0 {
-		config.Server.Port = defaultPort
-	}
+	config.setDefaults()
 
 	return config
 }
 
-func checkServiceStatus(serviceName string, ch chan<- ServiceStatus, wg *sync.WaitGroup) {
+func checkServiceStatus(serviceName string, ch chan<- ServiceStatus, wg *sync.WaitGroup, controller string) {
 	defer wg.Done()
-	cmd := exec.Command("systemctl", "is-active", serviceName)
+	var cmd *exec.Cmd
+	switch controller {
+	case "systemctl":
+		cmd = exec.Command("systemctl", "is-active", serviceName)
+	default:
+		log.Printf("Unknown controller: %s", controller)
+		return
+	}
 	output, err := cmd.Output()
 	status := 0
 	if err == nil && string(output) == "active\n" {
@@ -105,7 +155,7 @@ func main() {
 
 		for _, service := range services {
 			wg.Add(1)
-			go checkServiceStatus(service, ch, &wg)
+			go checkServiceStatus(service, ch, &wg, config.Controller)
 		}
 
 		// Wait for all goroutines to finish

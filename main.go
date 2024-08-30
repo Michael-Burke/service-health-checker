@@ -166,7 +166,7 @@ func main() {
 			serviceHealth.WithLabelValues(result.Name).Set(float64(result.Status))
 			log.Printf("%s %d\n", result.Name, result.Status)
 		}
-		log.Println("Waiting 10 seconds to refresh service status")
+		log.Printf("Waiting %d seconds to refresh service status", config.Interval)
 
 		time.Sleep(time.Duration(config.Interval) * time.Second)
 	}

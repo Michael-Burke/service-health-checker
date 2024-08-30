@@ -33,8 +33,7 @@ The `config.json` should look like this:
 }
 ```
 
-> Note: Interval doesn't do anything right now but is required so leave it at 10
-
+Interval is the delay in which application uses to check the service health. This defaults to 10 seconds but can be shortened or extended.
 Next run the following
 
 ```shell
